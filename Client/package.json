@@ -1,0 +1,29 @@
+{
+  "name": "chatapp",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "nuxt",
+    "build": "nuxt build",
+    "start": "nuxt start",
+    "generate": "nuxt generate",
+    "test": "jest"
+  },
+  "dependencies": {
+    "@nuxtjs/auth-next": "5.0.0-1624817847.21691f1",
+    "@nuxtjs/toast": "^3.3.1",
+    "core-js": "^3.15.1",
+    "nuxt": "^2.15.7",
+    "nuxt-socket-io": "^1.1.24",
+    "sass": "^1.42.1",
+    "sass-loader": "10",
+    "vue-carousel": "^0.18.0"
+  },
+  "devDependencies": {
+    "@vue/test-utils": "^1.2.1",
+    "babel-core": "7.0.0-bridge.0",
+    "babel-jest": "^27.0.5",
+    "jest": "^27.0.5",
+    "vue-jest": "^3.0.4"
+  }
+}
