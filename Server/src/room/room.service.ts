@@ -36,13 +36,22 @@ export class RoomService {
         return id;
     }
 
-    /**s
+    /**
      * Adds a user's ID to a room's users array
-     * @param room_id id of the room that the user will be added to
-     * @param user_id id of the user that will be added to the room
+     * @param {string} room_id id of the room that the user will be added to
+     * @param {string} user_id id of the user that will be added to the room
      */
     async addParticipant(room_id: string, user_id: string): Promise<void> {
         await this.roomModel.updateOne({ room_id: room_id }, { $push: { users: user_id } }).exec();
+    }
+
+    /**
+     * Removes a user's ID from a room's users array
+     * @param {string} room_id 
+     * @param {string} user_id 
+     */
+    async removeParticipant(room_id: string, user_id: string): Promise<void> {
+        await this.roomModel.updateOne({ room_id: room_id }, { $pull: { users: user_id } }).exec();
     }
 
     /**

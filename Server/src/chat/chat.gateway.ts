@@ -11,6 +11,7 @@ import { ChatService } from './chat.service';
 import { Room } from 'src/room/schemas/room.schema';
 import { AlreadyInRoom } from './Guards/alreadyInRoom.guard';
 import { CreateRoomDto } from 'src/room/dto/createRoom.dto';
+import { IsInRoom } from './Guards/isInRoom.guard';
 
 @WebSocketGateway({
   cors: {
@@ -77,16 +78,26 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
   async createRoom(@ConnectedSocket() client: any, @GetSocketUser() user: User, @MessageBody() message: CreateRoomDto): Promise<void> {
     await this.chatService.createRoom(client, user, message, this.server);
 
-    let rooms = await this.chatService.getRooms();
+    const rooms = await this.chatService.getRooms();
     this.server.emit('rooms/update', rooms);
   }
 
   @UseGuards(SocketAuthGuard, AlreadyInRoom)
   @SubscribeMessage('rooms/join')
   async joinRoom(@ConnectedSocket() client: any, @GetSocketUser() user: User, @MessageBody() room_id: string): Promise<void> {
+    console.log('Joining room!');
     await this.chatService.joinRoom(client, user, room_id, this.server);
 
-    let rooms = await this.chatService.getRooms();
+    const rooms = await this.chatService.getRooms();
+    this.server.emit('rooms/update', rooms); 
+  }
+
+  @UseGuards(SocketAuthGuard, IsInRoom)
+  @SubscribeMessage('rooms/leave')
+  async leaveRoom(@ConnectedSocket() client: any, @GetSocketUser() user: User): Promise<void> {
+    await this.chatService.leaveRoom(client, user, this.server);
+
+    const rooms = await this.chatService.getRooms();
     this.server.emit('rooms/update', rooms); 
   }
 

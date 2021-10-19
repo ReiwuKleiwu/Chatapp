@@ -26,15 +26,25 @@ export default {
       },
        persist: 'chatSocket'
     });
+
+    this.socket.on('rooms/leaveSuccess', () => {
+      this.$toast.success('Left room successfully!');
+      this.$auth.user.room_id = '';
+      this.$router.push('/');
+    });
+
+    this.socket.on('exception', (err) => {
+      this.$toast.error(err.emitError);
+    });
     
+  },
+  beforeDestroy() {
+    this.socket.removeAllListeners();
   },
   methods: {
     async logout() {
       this.$toast.show('Logging out...');
-      console.log(this.$root);
-      this.socket.emit('rooms/logout', (resp) => {
-        console.log('Success!');
-      });
+      this.socket.emit('rooms/leave');
     }
   }
 }

@@ -4,17 +4,17 @@ import { Observable } from "rxjs";
 
 
 @Injectable()
-export class AlreadyInRoom implements CanActivate {
+export class IsInRoom implements CanActivate {
 
     canActivate(
         context: ExecutionContext,
     ): boolean | Promise<boolean> | Observable<boolean> {
 
        if(context['args'][0].handshake.user.room_id !== '') {
-            throw new WsException({ emitError: 'You are already inside of another room.'});
+            return true;
        }
 
-       return true;
+       throw new WsException({ emitError: 'You are not inside of a room.'});
 
     }
 

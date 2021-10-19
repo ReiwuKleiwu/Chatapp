@@ -58,7 +58,7 @@ export class ChatService {
                 await this.roomService.addParticipant(room_id, user['_id']);
 
                 //Set room
-                await this.userService.setRoom({ _id: user['_id']}, room_id);
+                await this.userService.setRoom({ _id: user['_id'] }, room_id);
 
             }
 
@@ -70,6 +70,25 @@ export class ChatService {
         console.log(err);
     }
 
+    }
+
+    async leaveRoom(client: any, user: User, server: any): Promise<void> {
+        try {
+            const room = await this.roomService.getRoom(user.room_id);
+
+            if(!room) // This should never be true due to the 'IsInRoom' guard 
+                throw new WsException('The room you tried to leave doesn\'t exist');
+
+
+            await this.roomService.removeParticipant(room.room_id, user['_id']);
+
+            await this.userService.setRoom({ _id: user['_id'] }, '');
+
+            server.to(client.id).emit('rooms/leaveSuccess');
+
+        } catch (err) {
+            console.log(err);
+        }
     }
 
 }

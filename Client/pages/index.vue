@@ -50,6 +50,13 @@ export default {
         this.$router.push(`/room/${room_id}`);
     });
 
+    this.socket.on('exception', (err) => {
+      this.$toast.error(err.emitError);
+    });
+
+  },
+  beforeDestroy() {
+    this.socket.removeAllListeners();
   },
   methods: {
     getRooms () {
