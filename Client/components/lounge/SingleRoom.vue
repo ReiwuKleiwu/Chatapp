@@ -52,7 +52,7 @@ export default {
   methods: {
       async joinRoom() {
           this.$toast.show('Joining room...');
-          this.$root.socket.emit('rooms/join', this.room.room_id);
+          this.$parent.socket.emit('rooms/join', this.room.room_id);
       }
   }
 }

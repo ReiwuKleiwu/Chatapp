@@ -54,7 +54,7 @@ export default {
 
         this.$toast.show('Creating Room...');
 
-        this.$root.socket.emit('rooms/create', {
+        this.$parent.socket.emit('rooms/create', {
             name: this.name,
             description: this.description,
             language: this.language,

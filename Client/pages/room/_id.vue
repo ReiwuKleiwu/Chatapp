@@ -1,7 +1,7 @@
 <template>
   <div class ="app">
     <div class ="container">
-        <button>Logout</button>
+        <button @click="logout">Logout</button>
     </div>
   </div>
 </template>
@@ -23,12 +23,19 @@ export default {
             Authorization: token
           }
         }
-      }
+      },
+       persist: 'chatSocket'
     });
     
   },
   methods: {
-
+    async logout() {
+      this.$toast.show('Logging out...');
+      console.log(this.$root);
+      this.socket.emit('rooms/logout', (resp) => {
+        console.log('Success!');
+      });
+    }
   }
 }
 </script>

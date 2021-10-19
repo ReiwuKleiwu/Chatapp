@@ -27,23 +27,24 @@ export default {
 
     const token = localStorage.getItem('auth._token.local');
 
-    this.$root.socket = this.$nuxtSocket({
+    this.socket = this.$nuxtSocket({
       transportOptions: {
         polling: {
           extraHeaders: {
             Authorization: token
           }
         }
-      }
+      },
+       persist: 'chatSocket'
     });
 
     this.getRooms();
 
-    this.$root.socket.on('rooms/update', (rooms) => {
+    this.socket.on('rooms/update', (rooms) => {
       this.rooms = rooms;
     });
 
-    this.$root.socket.on('rooms/joinSuccess', (room_id) => {
+    this.socket.on('rooms/joinSuccess', (room_id) => {
         this.$toast.success('Joined room successfully!');
         this.$auth.user.room_id = room_id;
         this.$router.push(`/room/${room_id}`);
@@ -53,7 +54,7 @@ export default {
   methods: {
     getRooms () {
     return new Promise((resolve) => {
-      this.$root.socket.emit('rooms/get', (rooms) => {
+      this.socket.emit('rooms/get', (rooms) => {
         this.rooms = rooms;
         resolve();
       })
