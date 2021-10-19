@@ -122,7 +122,7 @@ export class RoomService {
      * Returns a fully populated room from the database.
      * WARNING: Even hashed passwords get returned
      * TODO: Remove hashed passwords getting returned
-     * @param room_id 
+     * @param {string} room_id 
      * @returns 
      */
     async getRoom(room_id: string): Promise <Room> {
@@ -155,7 +155,12 @@ export class RoomService {
         
     }
 
-    //Get all rooms for the lounge
+    /**
+     * Returns all rooms from the DB, used for the lounge, only shows fields
+     * the user is supposed to see on the front-end.
+     * TODO: Don't send hidden rooms
+     * @returns {Room[]} an array of all rooms.
+     */
     async getAllRooms(): Promise<Room[]> {
         let rooms = await this.roomModel.find({}, [
                 'room_id',

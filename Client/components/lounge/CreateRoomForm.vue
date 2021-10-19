@@ -48,15 +48,13 @@ export default {
       is_static: true,
       tags: []
   }),
-  mounted() {
-
-  },
+  mounted() {},
   methods: {
     async handleSubmit() {
 
         this.$toast.show('Creating Room...');
 
-        this.$parent.socket.emit('rooms/create', {
+        this.$root.socket.emit('rooms/create', {
             name: this.name,
             description: this.description,
             language: this.language,

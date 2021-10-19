@@ -48,12 +48,11 @@ export default {
   data: () => ({
  
   }),
-  mounted() {
-  },
+  mounted() {},
   methods: {
       async joinRoom() {
           this.$toast.show('Joining room...');
-          this.$parent.socket.emit('rooms/join', this.room.room_id);
+          this.$root.socket.emit('rooms/join', this.room.room_id);
       }
   }
 }
