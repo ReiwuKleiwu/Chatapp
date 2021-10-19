@@ -18,6 +18,7 @@ export class ChatService {
     async createRoom(client: any, user: User, payload: CreateRoomDto, server: any): Promise<void> {
         const created_room = await this.roomService.createRoom(payload, user);
         server.to(client.id).emit('rooms/joinSuccess', created_room.room_id);
+        client.join(created_room.room_id);
     }
 
     async joinRoom(client: any, user: User, room_id: string, server: any): Promise<void> {
@@ -64,6 +65,7 @@ export class ChatService {
 
      
             server.to(client.id).emit('rooms/joinSuccess', room_id);
+            client.join(room_id);
 
     }
     catch(err) {
@@ -100,6 +102,7 @@ export class ChatService {
             await this.userService.setRoom({ _id: user['_id'] }, '');
 
             server.to(client.id).emit('rooms/leaveSuccess');
+            client.leave(user.room_id);
 
         } catch (err) {
             console.log(err);
