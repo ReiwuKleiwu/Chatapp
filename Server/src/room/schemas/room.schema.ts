@@ -43,7 +43,7 @@ export class Room {
         max: 25,
         required: true
     })
-    capacity: Number;
+    capacity: number;
 
     @Prop({ required: true })
     language: string;

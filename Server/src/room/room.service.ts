@@ -51,7 +51,51 @@ export class RoomService {
      * @param {string} user_id 
      */
     async removeParticipant(room_id: string, user_id: string): Promise<void> {
-        await this.roomModel.updateOne({ room_id: room_id }, { $pull: { users: user_id } }).exec();
+        try {
+            await this.roomModel.updateOne({ room_id: room_id }, { $pull: { users: user_id } }).exec();          
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    /**
+     * Assigns a new user to a rooms host field
+     * @param {Room} room 
+     */
+    async assignNewHost(room: Room): Promise<void> {
+        
+        try {
+            let newHostID = await this.findNewHost(room);
+            let newHost = await this.userService.findOne({ _id: newHostID });
+
+            if(newHost) {
+                await this.roomModel.updateOne({ room_id: room.room_id }, { host: newHost }).exec();
+            }
+
+        } catch (error) {
+            console.log(error);
+        }
+
+    }
+
+    /**
+     * Finds a new host for a room by finding the user
+     * that has be inside of the room for the longest time.
+     * @param {Room} room 
+     * @returns {string} user id of the new host
+     */
+    async findNewHost(room: Room): Promise<string> {
+        let lowest = new Date(8640000000000000).getTime();
+        let newHost: string;
+
+        for(const user of room.users) {
+            if(user.logged_at < lowest) {
+                lowest = user.logged_at;
+                newHost = user['_id'];
+            }
+        }
+
+        return newHost;
     }
 
     /**
@@ -62,6 +106,27 @@ export class RoomService {
      */
     isFull(room: Room): Boolean {
         return room.users.length >= room.capacity; 
+    }
+
+    /**
+     * Tells whether or not a room should be deleted, that is
+     * the case when a room is not static and the there are 
+     * no users inside.
+     * @param {Room} room 
+     * @returns {boolean} true if empty and not static, false otherwise
+     */
+    shouldBeDeleted(room: Room): Boolean {
+        return room.users.length === 0 && !room.is_static;
+    }
+
+    /**
+     * Tells whether or not a user is the host of a room
+     * @param {Room} room 
+     * @param {string} user_id 
+     * @returns true if user_id is host of the room, false otherwise
+     */
+    isHost(room: Room, user_id: string): Boolean {
+        return room.host['_id'].equals(user_id);
     }
 
     /**
@@ -125,6 +190,18 @@ export class RoomService {
 
         return createdRoom;
 
+    }
+
+    /**
+     * Deletes a specified room from the DB
+     * @param {string} room room that will be deleted
+     */
+    async deleteRoom(room: Room): Promise<void> {
+        try {
+            await this.roomModel.deleteOne({ room_id: room.room_id }).exec();   
+        } catch (error) {
+            console.log(error);
+        }
     }
 
     /**

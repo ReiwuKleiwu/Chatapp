@@ -45,7 +45,7 @@ export default {
       is_music: true,
       is_knock: true,
       is_registered_only: true,
-      is_static: true,
+      is_static: false,
       tags: []
   }),
   mounted() {},

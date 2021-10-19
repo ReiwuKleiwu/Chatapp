@@ -74,13 +74,28 @@ export class ChatService {
 
     async leaveRoom(client: any, user: User, server: any): Promise<void> {
         try {
-            const room = await this.roomService.getRoom(user.room_id);
+            let room = await this.roomService.getRoom(user.room_id);
 
             if(!room) // This should never be true due to the 'IsInRoom' guard 
                 throw new WsException('The room you tried to leave doesn\'t exist');
-
-
+                
             await this.roomService.removeParticipant(room.room_id, user['_id']);
+
+            room = await this.roomService.getRoom(user.room_id);
+
+            const should_be_deleted = this.roomService.shouldBeDeleted(room);
+            
+            if(should_be_deleted) {
+                await this.roomService.deleteRoom(room); 
+            }
+
+            const is_host = this.roomService.isHost(room, user['_id']);
+
+            if(is_host && !should_be_deleted) {
+                if(room.users.length > 0) {
+                    await this.roomService.assignNewHost(room);
+                }
+            }
 
             await this.userService.setRoom({ _id: user['_id'] }, '');
 

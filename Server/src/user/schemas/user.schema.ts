@@ -50,16 +50,16 @@ export class User {
         default: Date.now(),
         required: false
     })
-    logged_at: Number;
+    logged_at: number;
 
     @Prop({ required: false })
-    registered_at: Number;
+    registered_at: number;
 
     @Prop({
         default: Date.now(),
         required: false
     })
-    updated_at: Number;
+    updated_at: number;
 
     @Prop({ required: true })
     ip_adress: string;
