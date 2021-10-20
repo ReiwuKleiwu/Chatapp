@@ -2,9 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { WsException } from '@nestjs/websockets';
 import { CreateRoomDto } from 'src/room/dto/createRoom.dto';
 import { RoomService } from 'src/room/room.service';
-import { Room } from 'src/room/schemas/room.schema';
+import { Message, Room } from 'src/room/schemas/room.schema';
 import { User } from 'src/user/schemas/user.schema';
 import { UserService } from 'src/user/user.service';
+import * as mongoose from 'mongoose';
 
 @Injectable()
 export class ChatService {
@@ -12,11 +13,32 @@ export class ChatService {
     constructor(private roomService: RoomService, private userService: UserService){};
 
     async getRooms(): Promise<Object[]> {
-        return this.roomService.getAllRooms();
+        return await this.roomService.getAllRooms();
+    }
+
+    async getRoomData(room_id: string, user: User): Promise<Room> {
+        const room =  await this.roomService.getRoomData(room_id);
+
+        room.messages = room.messages.filter((message) => {
+            if(!message.to) {
+                return true;
+            }
+
+            if(user['_id'].equals(message.to['_id'])) {
+                return true;
+            }
+
+            if(message.author['_id'].equals(user['_id'])) {
+                return true;
+            }
+        });
+
+        return room; 
     }
 
     async createRoom(client: any, user: User, payload: CreateRoomDto, server: any): Promise<void> {
         const created_room = await this.roomService.createRoom(payload, user);
+        await this.roomService.addParticipant(created_room.room_id, user['_id']);
         server.to(client.id).emit('rooms/joinSuccess', created_room.room_id);
         client.join(created_room.room_id);
     }
@@ -75,12 +97,13 @@ export class ChatService {
     }
 
     async leaveRoom(client: any, user: User, server: any): Promise<void> {
-        try {
+        
             let room = await this.roomService.getRoom(user.room_id);
 
             if(!room) // This should never be true due to the 'IsInRoom' guard 
                 throw new WsException('The room you tried to leave doesn\'t exist');
-                
+
+        try {        
             await this.roomService.removeParticipant(room.room_id, user['_id']);
 
             room = await this.roomService.getRoom(user.room_id);
@@ -107,6 +130,90 @@ export class ChatService {
         } catch (err) {
             console.log(err);
         }
+    }
+
+    async sendMessage(client: any, user: User, message: {
+        content: string,
+        to: string
+    } , clients: any, server: any): Promise<void> {
+        
+        const room = await this.roomService.getRoom(user.room_id);
+
+        if(!room) // This should never be true due to the 'IsInRoom' guard 
+            throw new WsException('You\'re not inside of a room.');
+
+                
+        const sender = {
+            _id: user['_id'],
+            username: user.username,
+            avatar: user.avatar,
+            is_registered: user.is_registered
+        }
+        
+        const newMessage = {
+            author: user['_id'],
+            to: null,
+            content: message.content,
+            type: 'message',
+        };    
+        
+
+        if(message.to) {
+
+            if(user['_id'].equals(message.to))
+                throw new WsException('Bro...find some friends, honestly..');
+
+            try {
+
+                const dmTarget = await this.userService.findOne({ _id: new mongoose.Types.ObjectId(message.to)});
+                
+                if(!dmTarget) //Should probably put this logic into a guard
+                    throw new WsException('The user you tried to message does not exist.');
+
+                newMessage.to = new mongoose.Types.ObjectId(message.to);
+                newMessage.type = 'dm';
+
+                await this.roomService.addMessage(user.room_id, newMessage);
+
+                server.to(clients[dmTarget['_id']].id).emit('rooms/message', {
+                    author: sender, 
+                    to: newMessage.to,
+                    content: newMessage.content,
+                    type: newMessage.type,
+                });
+
+                console.log(client.id);
+
+                return server.to(client.id).emit('rooms/message', {
+                    author: sender, 
+                    to: newMessage.to,
+                    content: newMessage.content,
+                    type: newMessage.type,
+                });
+
+            } catch (error) {
+                console.log(error);
+                throw new WsException('The user you tried to message does not exist.');
+            }
+
+        }
+
+        try {
+            await this.roomService.addMessage(user.room_id, newMessage);
+
+            return server.to(user.room_id).emit('rooms/message', {
+                author: sender, 
+                to: '',
+                content: newMessage.content,
+                type: newMessage.type,
+            });
+
+
+        } catch (error) {
+            console.log(error);
+        }
+
+        
     }
 
 }

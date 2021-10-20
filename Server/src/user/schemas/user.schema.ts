@@ -1,5 +1,4 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { ExecOptionsWithStringEncoding } from 'child_process';
 import { Document } from 'mongoose';
 
 export type UserDocument = User & Document;

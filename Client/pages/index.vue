@@ -51,7 +51,12 @@ export default {
     });
 
     this.socket.on('exception', (err) => {
-      this.$toast.error(err.emitError);
+      if(err.message) {
+        this.$toast.error(err.message);
+      }
+      else {
+        this.$toast.error(err.emitError);
+      }
     });
 
   },

@@ -103,8 +103,13 @@ export class Room {
 
 }
 
+export const RoomSchema = SchemaFactory.createForClass(Room);
+
+
+export type MessageDocument = Message & Document;
+
 @Schema()
-class Message { 
+export class Message { 
  
     @Prop({ 
         type: mongoose.Schema.Types.ObjectId, ref: 'User',
@@ -131,7 +136,7 @@ class Message {
 
     @Prop({
         default: Date.now(),
-        required: true})
+        required: false})
     created_at: Date;
 
     @Prop({ required: false })
@@ -139,4 +144,5 @@ class Message {
 
 }
 
-export const RoomSchema = SchemaFactory.createForClass(Room);
+export const MessageSchema = SchemaFactory.createForClass(Message);
+

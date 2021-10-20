@@ -2,7 +2,7 @@ import { Model } from 'mongoose';
 import * as mongoose from 'mongoose';
 import { ConflictException, ConsoleLogger, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Room, RoomDocument } from './schemas/room.schema';
+import { Message, Room, RoomDocument } from './schemas/room.schema';
 import { CreateRoomDto } from './dto/createRoom.dto';
 import * as bcrypt from 'bcrypt';
 import { User } from 'src/user/schemas/user.schema';
@@ -96,6 +96,20 @@ export class RoomService {
         }
 
         return newHost;
+    }
+
+    /**
+     * Adds a message to a rooms messages array
+     * @param {string} room_id 
+     * @param {Message} message 
+     */
+    async addMessage(room_id: string, message: {
+        author: any,
+        to: any,
+        content: string,
+        type: string,
+    }): Promise<void> {
+        await this.roomModel.updateOne({ room_id: room_id }, { $push: { messages: message } });
     }
 
     /**
@@ -206,10 +220,12 @@ export class RoomService {
 
     /**
      * Returns a fully populated room from the database.
+     * The user is NOT supposed to see this data, ever. 
+     * SERVER-SIDE ONLY!
      * WARNING: Even hashed passwords get returned
      * TODO: Remove hashed passwords getting returned
      * @param {string} room_id 
-     * @returns 
+     * @returns {Room}
      */
     async getRoom(room_id: string): Promise <Room> {
 
@@ -242,13 +258,82 @@ export class RoomService {
     }
 
     /**
+     * Returns a populated room with data the user is supposed
+     * to see when they are inside of the given room.
+     * @param {Room} room_id id of the room
+     * @returns {Room} 
+     */
+    async getRoomData(room_id: string): Promise<Room> {
+        const room = await this.roomModel.findOne({ room_id: room_id }, [
+            'room_id',
+            'name',
+            'description',
+            'capacity',
+            'language',
+            'tags',
+            'created_at',
+            'host',
+            'users',
+            'messages',
+            'is_static',
+            'is_adult',
+            'is_music',
+            'is_knock',
+            'is_locked',
+            'is_registered_only'
+        ]).populate({
+            path: 'users',
+                model: 'User', 
+                select: {
+                    _id: 1,
+                    username: 1,
+                    avatar: 1,
+                    is_registered: 1,
+                    role: 1
+                }
+        }).populate({
+            path: 'host',
+            model: 'User',
+            select: {
+                _id: 1,
+                username: 1,
+                avatar: 1,
+                is_registered: 1,
+                role: 1
+            }
+        }).populate({
+            path: 'messages.author', 
+            model: 'User',
+            select: {
+                _id: 1,
+                username: 1,
+                avatar: 1,
+                is_registered: 1,
+                role: 1
+            }
+        }).populate({
+            path: 'messages.to', 
+            model: 'User',
+            select: {
+                _id: 1,
+                username: 1,
+                avatar: 1,
+                is_registered: 1,
+                role: 1
+            }
+        });
+
+        return room;
+    }
+
+    /**
      * Returns all rooms from the DB, used for the lounge, only shows fields
-     * the user is supposed to see on the front-end.
+     * the user is supposed to see on the front-end in the lounge.
      * TODO: Don't send hidden rooms
      * @returns {Room[]} an array of all rooms.
      */
     async getAllRooms(): Promise<Room[]> {
-        let rooms = await this.roomModel.find({}, [
+        const rooms = await this.roomModel.find({}, [
                 'room_id',
                 'name',
                 'description',
@@ -275,8 +360,8 @@ export class RoomService {
                     role: 1
                 }
             }).populate({
-                        path: "host",
-                        model: "User",
+                        path: 'host',
+                        model: 'User',
                         select: {
                             _id: 1,
                             username: 1,

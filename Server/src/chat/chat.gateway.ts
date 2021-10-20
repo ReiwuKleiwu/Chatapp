@@ -45,13 +45,15 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
 
         const { username } = payload; 
 
-        const user: User = await this.userService.findOne({ username }, { _id: 1 });
+        const user: User = await this.userService.findOne({ username }, { _id: 1, room_id: 1 });
 
         if(!user)
           client.disconnect();
         
-        console.log('Socket connected!');
-        this.clients[client.id] = client;
+        if(user.room_id)
+          client.join(user.room_id);
+        
+        this.clients[user['_id']] = client;
     } catch (error) {
         client.disconnect();
     }
@@ -59,7 +61,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
 
   async handleDisconnect(client: any) {
     try {
-      delete this.clients[client.id];
+      if(client.handshake.user.room_id)
+        client.leave(client.handshake.user.room_id);
+
+      delete this.clients[client.handshake.user['_id']];
     } catch (error) {
       console.log(error);
     }
@@ -71,6 +76,12 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
   @SubscribeMessage('rooms/get')
   async getRooms(@ConnectedSocket() client: any, @GetSocketUser() user: User, payload: any): Promise<Object[]> {
     return this.chatService.getRooms();
+  }
+
+  @UseGuards(SocketAuthGuard, IsInRoom)
+  @SubscribeMessage('rooms/data')
+  async getRoomData(@ConnectedSocket() client: any, @GetSocketUser() user: User, payload: any): Promise<Room> {
+    return this.chatService.getRoomData(user.room_id, user);
   }
 
   @UseGuards(SocketAuthGuard, AlreadyInRoom)
@@ -85,7 +96,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
   @UseGuards(SocketAuthGuard, AlreadyInRoom)
   @SubscribeMessage('rooms/join')
   async joinRoom(@ConnectedSocket() client: any, @GetSocketUser() user: User, @MessageBody() room_id: string): Promise<void> {
-    console.log('Joining room!');
     await this.chatService.joinRoom(client, user, room_id, this.server);
 
     const rooms = await this.chatService.getRooms();
@@ -99,6 +109,15 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
 
     const rooms = await this.chatService.getRooms();
     this.server.emit('rooms/update', rooms); 
+  }
+
+  @UseGuards(SocketAuthGuard, IsInRoom)
+  @SubscribeMessage('rooms/message')
+  async sendMessage(@ConnectedSocket() client: any, @GetSocketUser() user: User, @MessageBody() message: {
+    content: string,
+    to: string
+  }): Promise<void> {
+    await this.chatService.sendMessage(client, user, message, this.clients, this.server);
   }
 
 }
