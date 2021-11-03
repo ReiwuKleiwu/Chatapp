@@ -4,6 +4,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from './schemas/user.schema';
 import * as bcrypt from 'bcrypt';
 import { RegisterUserDto } from './dto/registerUser.dto';
+import { avatar_element_colors } from './avatars/avatar_element_colors';
 
 @Injectable()
 export class UserService {
@@ -24,7 +25,8 @@ export class UserService {
             avatar,
             is_registered: true,
             registered_at: Date.now(),
-            ip_adress: IP
+            ip_adress: IP,
+            element_color: avatar_element_colors.get(avatar)
         });
 
         try {
@@ -45,7 +47,8 @@ export class UserService {
             username,
             avatar,
             is_registered: false,
-            ip_adress: IP
+            ip_adress: IP,
+            element_color: avatar_element_colors.get(avatar)
         });
 
         try {

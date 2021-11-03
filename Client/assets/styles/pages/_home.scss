@@ -1,0 +1,30 @@
+.homePage {
+    padding-top: 110px;
+    padding-bottom: 40px;
+    &--roomDetails {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 24px;
+        color: rgba(255, 255, 255, 0.6);
+        margin-bottom: 24px;
+        font-size: 15px;
+    }
+    &--rooms {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    @media screen and (min-width: 768px) {
+        padding-top: 130px;
+    }
+
+    @media screen and (min-width: 1024px) {
+        padding-top: 150px;
+    }
+
+    @media screen and (min-width: 1550px) {
+        padding-top: 60px;
+    }
+}

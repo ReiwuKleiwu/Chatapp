@@ -1,28 +1,47 @@
 <template>
-  <div class ="app">
-    <div class ="container">
-      <CreateRoomForm/>
-      <SingleRoom v-for="(room, index) in rooms" :key="index" :room="room">{{room}}</SingleRoom>
-      <!-- <h1 v-for="(room, index) in rooms" :key="index" :room="room">{{room}}</h1> -->
-      <h1>{{this.$auth.user}}</h1>
+<div class="app">
+  <LayoutHeader />
+  <main class="main">
+  <div class="homePage">
+    <div class="homePage--roomDetails">
+      <div class="homePage--roomDetails-rooms">
+        {{ totalRooms }} room<template v-if="totalRooms > 1">s</template>
+      </div>
+      <div class="homePage--roomDetails-users">
+        {{ totalUsers }} user<template v-if="totalUsers > 1">s</template>
+      </div>
+    </div>
+    <div class="homePage--rooms">
+      <Room v-for="(room, index) in rooms" :key="index" :room="room" />
     </div>
   </div>
+  </main>
+  <LayoutFooter />
+</div>
 </template>
 
 <script>
-
-import SingleRoom from '../components/lounge/SingleRoom'
-import CreateRoomForm from '../components/lounge/CreateRoomForm'
+import Room from '../components/lounge/Room';
 
 export default {
   name: 'Index',
   components: {
-    SingleRoom,
-    CreateRoomForm
+    Room
   },
   data: () => ({
     rooms: []
   }),
+  computed: {
+    totalRooms() {
+      return this.rooms.length;
+    },
+    totalUsers() {
+      return this.rooms.reduce((acc, e) => {
+        acc += e.users.length;
+        return acc;
+      }, 0);
+    },
+  },
   mounted() {
 
     const token = localStorage.getItem('auth._token.local');
@@ -76,6 +95,6 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
-
+<style lang="scss">
+@import "@/assets/styles/main.scss";
 </style>

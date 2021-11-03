@@ -1,0 +1,28 @@
+.inputLabel {
+    &--label {
+        color: #FFF(255, 255, 255, 0.6);
+        margin-bottom: 5px;
+    }
+    input,
+    textarea {
+        width: 100%;
+        background-color: transparent;
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        border-radius: 20px;
+        resize: none;
+        color: #fff;
+        padding: 8px 16px;
+        transition: border-color 0.3s;
+        &::placeholder {
+            color: #fff;
+        }
+        &:hover,
+        &:focus {
+            outline: none;
+            border-color: rgba(255, 255, 255, 1);
+        }
+    }
+    textarea {
+        min-height: 150px;
+    }
+}

@@ -348,7 +348,7 @@ export class RoomService {
                 'is_music',
                 'is_knock',
                 'is_locked',
-                'is_registered_only'
+                'is_registered_only',
         ]).populate({
                 path: 'users',
                 model: 'User', 
@@ -367,7 +367,8 @@ export class RoomService {
                             username: 1,
                             avatar: 1,
                             is_registered: 1,
-                            role: 1
+                            role: 1,
+                            element_color: 1
                         }
                         });
 

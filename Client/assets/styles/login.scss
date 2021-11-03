@@ -1,0 +1,67 @@
+@import "./reset.scss";
+@import "./home.scss";
+
+@font-face {
+  font-family: 'Meiryo';
+  src: url('@/assets/fonts/meiryo.woff2') format('woff2'),
+    url('@/assets/fonts/meiryo.woff') format('woff'),
+    url('@/assets/fonts/meiryo.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Meiryo Bold';
+  src: url('@/assets/fonts/meiryo-bold.woff2') format('woff2'),
+    url('@/assets/fonts/meiryo-bold.woff') format('woff'),
+    url('@/assets/fonts/meiryo-bold.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+body {
+  font-family: "Meiryo";
+  background-color: #1C1C1C;
+  color: #FFF;
+}
+
+.container {
+  max-width: 1280px;
+  padding: 0 15px;
+  margin: 0 auto;
+}
+
+.app-header {
+  .logo {
+    img {
+      max-width: 100%;
+    }
+  }
+}
+
+.VueCarousel{
+  max-width: 320px;
+  .VueCarousel-slide {
+    display: flex;
+    justify-content: center;
+  }
+  .VueCarousel-navigation-button {
+    color: #FFF !important;
+    outline-width: 0 !important;
+
+    svg {
+      height: 24px;
+      width: 24px;
+      fill: white;
+    }
+    &:focus{
+      outline-width: 0 !important;
+    }
+  }
+}
+
+@media screen and (max-width: 425px ){
+  .VueCarousel{
+    max-width: 250px;
+  }
+}

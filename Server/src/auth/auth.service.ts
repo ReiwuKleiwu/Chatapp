@@ -58,7 +58,8 @@ export class AuthService {
         email: string,
         room_id: string,
         avatar: string,
-        is_registered: Boolean
+        is_registered: Boolean,
+        element_color: string
     }}> {
 
         return {
@@ -68,7 +69,8 @@ export class AuthService {
                 email: user['email'],
                 room_id: user['room_id'],
                 avatar: user['avatar'],
-                is_registered: user['is_registered']
+                is_registered: user['is_registered'],
+                element_color: user['element_color']
             }
         };
     }

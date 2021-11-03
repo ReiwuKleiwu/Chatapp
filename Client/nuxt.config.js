@@ -34,13 +34,15 @@ export default {
 
   // Global CSS: https://go.nuxtjs.dev/config-css
   css: [
-    '~/assets/styles/app.scss'
+    // '~/assets/styles/app.scss'
   ],
 
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
   plugins: [{
     src: './plugins/vue-carousel.js',
     mode: 'client'
+  }, {
+    src: '~/plugins/vue-tooltip.js'
   }],
 
   // Auto import components: https://go.nuxtjs.dev/config-components

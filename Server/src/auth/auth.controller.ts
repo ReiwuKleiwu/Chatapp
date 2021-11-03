@@ -29,7 +29,8 @@ export class AuthController {
         email: string,
         room_id: string,
         avatar: string,
-        is_registered: Boolean
+        is_registered: Boolean,
+        element_color: string
     }}> {
         return this.authService.getUser(user);
     }

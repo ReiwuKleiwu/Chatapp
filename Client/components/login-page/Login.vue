@@ -69,3 +69,7 @@ export default {
   }
 }
 </script>
+
+<style lang="scss">
+@import "@/assets/styles/login.scss";
+</style>

@@ -62,6 +62,9 @@ export class User {
 
     @Prop({ required: true })
     ip_adress: string;
+
+    @Prop({ require: true })
+    element_color: string;
    
 }
 
