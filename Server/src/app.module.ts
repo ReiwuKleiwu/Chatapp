@@ -9,7 +9,7 @@ import { ChatModule } from './chat/chat.module';
 
 
 @Module({
-  imports: [MongooseModule.forRoot('mongodb://localhost/nest'), AuthModule, UserModule, RoomModule, ChatModule],
+  imports: [MongooseModule.forRoot('mongodb://mongo'), AuthModule, UserModule, RoomModule, ChatModule],
   controllers: [AppController],
   providers: [AppService],
 })
